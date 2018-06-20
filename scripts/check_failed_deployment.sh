@@ -1,4 +1,5 @@
 # Check if the deployment has started. If not, exit gracefully. If yes, check for errors.
+source ~/stackrc
 if ! openstack stack list | grep -q overcloud; then
     echo "overcloud deployment not started. Check the deploy configurations"
     exit 1
