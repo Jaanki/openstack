@@ -38,7 +38,7 @@ function validate() {
   && ./create_router.sh \
   && ./create_vm.sh \
   && ./check_ovs_flows.sh \
-  ||  Validation_Failed=$((Validation_Failed+1)) && exit 1
+  ||  Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1
 }
 
 if [[ ! -e cirros-0.3.5-x86_64-disk.img ]]; then
@@ -55,9 +55,8 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
   if [ $? != 0 ]; then
     echo "deployment failed. check logs for reasons"
     check_failed_deployment ~/multiple/$INIT
-    exit 1
+    exit
   else
-    echo $? >> ~/multiple/$INIT/deploy_overcloud.log
     echo "Completed overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     ./ssh_to_overcloud_nodes.sh
@@ -66,7 +65,6 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     else
       echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
-      python send_mail.py
       exit
     fi
   fi
