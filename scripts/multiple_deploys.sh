@@ -17,7 +17,7 @@ function check_failed_deployment() {
 }
 
 function deploy() {
-  source stackrc
+  source ~/stackrc
   echo "deploying overcloud"
   ./deploy_overcloud.sh
   if [ $? == 0 ]; then
