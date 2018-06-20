@@ -1,4 +1,5 @@
-# Create public network
+source ~/overcloudrc
+# Create vlan public network
 #openstack network create --share --external --provider-physical-network datacentre --provider-network-type vlan --provider-segment 10 public && echo "public network created" || echo "public network creation failed"
 #openstack subnet create --allocation-pool start=10.0.0.1,end=10.0.0.254 --gateway=10.0.0.1 --no-dhcp --network public --subnet-range 10.0.0.0/24 public_subnet
 
