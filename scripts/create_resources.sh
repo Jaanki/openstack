@@ -1,3 +1,4 @@
+source ~/overcloudrc
 #Create cirros image
 openstack image create --disk-format qcow2 --public --file cirros-0.3.5-x86_64-disk.img --container-format=bare cirros && echo "cirros image created" || echo "cirros image creation failed"
 
@@ -20,4 +21,3 @@ openstack security group rule create SSH --protocol icmp && echo "image created"
 # Create keypair
 openstack keypair create RDO_KEY > MY_KEY.pem && echo "keypair created" || echo "keypair creation failed"
 chmod 600 MY_KEY.pem
-
