@@ -20,7 +20,6 @@ function deploy() {
   source stackrc
   echo "deploying overcloud"
   ./deploy_overcloud.sh
-  echo $? >> deloyed.txt
   if [ $? == 0 ]; then
     Deployed=$((Deployed + 1))
   else
