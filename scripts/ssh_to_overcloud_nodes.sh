@@ -1,7 +1,7 @@
 # This is quickstart and infrared proof
 
 source ~/stackrc
-touch nodesrc
+touch ~/nodesrc
 for i in $(nova list | awk 'NR>=4 {print $4 $12}')
 do
   node=$(echo $i | awk -F 'ctlplane=' '{print $1}')
