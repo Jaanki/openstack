@@ -1,3 +1,5 @@
+source ~/stackrc
+
 #!/bin/bash
 
 openstack overcloud deploy \
