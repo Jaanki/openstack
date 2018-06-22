@@ -19,7 +19,7 @@ function check_failed_deployment() {
 function deploy() {
   source ~/stackrc
   echo "deploying overcloud"
-  ./deploy_overcloud.sh
+  ./overcloud_deploy.sh
   if [ $? == 0 ]; then
     Deployed=$((Deployed + 1))
   else
@@ -37,7 +37,8 @@ function validate() {
   && ./create_public_network.sh \
   && ./create_router.sh \
   && ./create_vm.sh \
-  && ./check_ovs_flows.sh \
+  && ./ping_vms.sh
+  && ./check_ovs_flows.sh
   ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }
 
@@ -50,7 +51,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
   echo "Starting overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   delete >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
-  sleep 120
+  sleep 120./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
   echo "Starting overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
   deploy >> ~/multiple/$INIT/deploy_overcloud.log
   if [ $? != 0 ]; then
@@ -67,6 +68,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     else
       echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
+      ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
       exit
     fi
   fi

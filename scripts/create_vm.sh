@@ -28,8 +28,8 @@ FIP121=$(neutron floatingip-create public | grep floating_ip_address |awk '{prin
 sleep 30
 openstack server add floating ip vxlan1_host0_vm1 $FIP121
 
-ping -c4 $FIP121
-ping -c4 $FIP111
+ping -c4 $FIP121 || exit 1
+ping -c4 $FIP111 || exit 1
 
 
 #openstack server create --flavor m1.small --image cirros --nic net-id=$vlan1 --security-group SSH --key-name RDO_KEY --availability-zone nova:overcloud-novacompute-0.localdomain net1_host1_vm1
