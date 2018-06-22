@@ -1,12 +1,15 @@
-openstack router create router1
-echo "router1 created"
-openstack router add subnet router1  vlan1-subnet
-echo "added vlan1 subnet to router1"
+INIT=0
+COUNT=$1
+source ~/overcloudrc
+while [ $INIT -lt $COUNT ]; do
+  openstack router create router$INIT
+  echo "router"$INIT "created"
 
-openstack router add subnet router1  vxlan1-subnet
-echo "added vxlan1 subnet to router1"
+  openstack router add subnet router$INIT  vxlan$INIT-subnet
+  echo "added vxlan"$INIT "subnet to router"$INIT
 
-#openstack router add subnet router1  vlan3-subnet
+  neutron router-gateway-set router$INIT public
+  echo "public g/w to router"$INIT "set"
+  INIT=$((INIT + 1))
+done
 
-neutron router-gateway-set router1 public
-echo "public g/w to router1 set"
