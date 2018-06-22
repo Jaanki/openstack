@@ -37,7 +37,7 @@ function validate() {
   && ./create_public_network.sh \
   && ./create_router.sh \
   && ./create_vm.sh \
-  && ./check_ovs_flows.sh
+  && ./check_ovs_flows.sh \
   ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }
 
