@@ -17,7 +17,6 @@ nova console-log vlan1_host1_vm1 | grep eth0 | grep $vlan1_host1_vm1_ip && echo 
 FIP111=$(neutron floatingip-create public | grep floating_ip_address |awk '{print $4}')
 sleep 30
 openstack server add floating ip vlan1_host1_vm1 $FIP111
-ping -c4 $FIP111
 
 echo "creating vm2 on net2 host2"
 openstack server create --flavor m1.small --image cirros --nic net-id=$vxlan1 --security-group SSH --key-name RDO_KEY --availability-zone nova:compute-0.localdomain vxlan1_host0_vm1
@@ -28,10 +27,9 @@ nova console-log vxlan1_host0_vm1 | grep eth0 | grep $vxlan1_host0_vm1_ip && ech
 FIP121=$(neutron floatingip-create public | grep floating_ip_address |awk '{print $4}')
 sleep 30
 openstack server add floating ip vxlan1_host0_vm1 $FIP121
+
 ping -c4 $FIP121
-
-
-
+ping -c4 $FIP111
 
 
 #openstack server create --flavor m1.small --image cirros --nic net-id=$vlan1 --security-group SSH --key-name RDO_KEY --availability-zone nova:overcloud-novacompute-0.localdomain net1_host1_vm1
