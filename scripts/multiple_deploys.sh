@@ -51,6 +51,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
   delete >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   echo "Starting overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
+  sleep 120
   deploy >> ~/multiple/$INIT/deploy_overcloud.log
   if [ $? != 0 ]; then
     echo "deployment failed. check logs for reasons"
@@ -60,6 +61,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     echo "Completed overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     ./ssh_to_overcloud_nodes.sh >> ~/multiple/$INIT/nodesrc
+    sleep 120
     validate >> ~/multiple/$INIT/validate_overcloud.log
     if [ $? == 0 ]; then
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
@@ -70,6 +72,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
   fi
   #./overcloud-capture.yml >> ~/multiple/$INIT/data_dump.log
   INIT=$((INIT + 1))
+  sleep 120
 done
 
 echo "Completed"
