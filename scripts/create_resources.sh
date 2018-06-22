@@ -21,7 +21,7 @@ echo "SSH rule to SSH group added"
 #openstack security group rule create SSH --protocol tcp --dst-port 22:22 --remote-ip ::0/0 --ethertype IPv6
 echo "SSH6 rule to SSH group added"
 
-openstack security group rule create SSH --protocol icmp &&  || echo "image creation failed"
+openstack security group rule create SSH --protocol icmp
 echo "ICMP SSH rule created"
 #openstack security group rule create SSH --protocol ipv6-icmp
 #echo "ICMP6 SSH rule created"

@@ -50,8 +50,8 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
   echo "Starting overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   delete >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
-  echo "Starting overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
   sleep 120
+  echo "Starting overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
   deploy >> ~/multiple/$INIT/deploy_overcloud.log
   if [ $? != 0 ]; then
     echo "deployment failed. check logs for reasons"
@@ -59,9 +59,9 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     exit
   else
     echo "Completed overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
-    echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     ./ssh_to_overcloud_nodes.sh >> ~/multiple/$INIT/nodesrc
     sleep 120
+    echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     validate >> ~/multiple/$INIT/validate_overcloud.log
     if [ $? == 0 ]; then
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
