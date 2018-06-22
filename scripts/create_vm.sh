@@ -13,7 +13,7 @@ openstack server create --flavor m1.small --image cirros --nic net-id=$vlan1 --s
 vlan1_host1_vm1_ip=$(nova show vlan1_host1_vm1 | grep network | awk '{print $5}')
 sleep 50
 nova console-log vlan1_host1_vm1
-nova console-log vlan1_host1_vm1 | grep eth0 | grep $vlan1_host1_vm1_ip && echo "IP allocated to VM" || echo "vm didnot get ip"
+#nova console-log vlan1_host1_vm1 | grep eth0 | grep $vlan1_host1_vm1_ip && echo "IP allocated to VM" || echo "vm didnot get ip"
 FIP111=$(neutron floatingip-create public | grep floating_ip_address |awk '{print $4}')
 sleep 30
 openstack server add floating ip vlan1_host1_vm1 $FIP111
@@ -23,7 +23,7 @@ openstack server create --flavor m1.small --image cirros --nic net-id=$vxlan1 --
 vxlan1_host0_vm1_ip=$(nova show vxlan1_host0_vm1 | grep network | awk '{print $5}')
 sleep 50
 nova console-log vxlan1_host0_vm1
-nova console-log vxlan1_host0_vm1 | grep eth0 | grep $vxlan1_host0_vm1_ip && echo "IP allocated to VM" || echo "vm didnot get ip"
+#nova console-log vxlan1_host0_vm1 | grep eth0 | grep $vxlan1_host0_vm1_ip && echo "IP allocated to VM" || echo "vm didnot get ip"
 FIP121=$(neutron floatingip-create public | grep floating_ip_address |awk '{print $4}')
 sleep 30
 openstack server add floating ip vxlan1_host0_vm1 $FIP121

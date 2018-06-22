@@ -24,7 +24,7 @@ function deploy() {
     Deployed=$((Deployed + 1))
   else
     Deploy_Failed=$((Deploy_Failed + 1))
-    python send_mail.py
+    python send_mail_deploy.py
     exit 1
   fi
 }
@@ -68,7 +68,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
       exit
     fi
   fi
-  ./overcloud-capture.yml >> ~/multiple/$INIT/data_dump.log
+  #./overcloud-capture.yml >> ~/multiple/$INIT/data_dump.log
   INIT=$((INIT + 1))
 done
 
