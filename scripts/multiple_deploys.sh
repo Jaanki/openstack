@@ -29,14 +29,27 @@ function deploy() {
   fi
 }
 
-function validate() {
+function validate_fip() {
   source ~/overcloudrc
   ./create_resources.sh \
-  && ./create_vlan_network.sh \
-  && ./create_vxlan_network.sh \
+  && ./create_vlan_network.sh 0 \
+  && ./create_vxlan_network.sh 4 \
   && ./create_public_network.sh \
-  && ./create_router.sh \
-  && ./create_vm.sh \
+  && ./create_router.sh 4 \
+  && ./create_vm.sh 4 fip \
+  && ./check_ovs_flows.sh \
+  ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
+}
+
+function validate_snat() {
+  source ~/overcloudrc
+  ./create_resources.sh \
+  && ./create_vlan_network.sh 0 \
+  && ./create_vxlan_network.sh $1 \
+  && ./create_public_network.sh \
+  && ./create_router.sh $1 \
+  && ./create_vm.sh $1 \
+  && ./ping_gw_scenario.sh $1 \
   && ./check_ovs_flows.sh \
   ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }
@@ -62,12 +75,14 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     ./ssh_to_overcloud_nodes.sh >> ~/multiple/$INIT/nodesrc
     sleep 60
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
-    validate >> ~/multiple/$INIT/validate_overcloud.log
+    #validate_fip >> ~/multiple/$INIT/validate_overcloud.log
+    validate_snat 4 >> ~/multiple/$INIT/validate_overcloud.log
     if [ $? == 0 ]; then
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     else
       echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
       ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
+      ./collect_debug_info.sh
       exit
     fi
   fi

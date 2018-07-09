@@ -13,6 +13,7 @@ do
   if [ $? != 0 ]; then
     echo $ROUTER "deletion failed"
     exit 1
+  fi
 done
 
 # delete networks
