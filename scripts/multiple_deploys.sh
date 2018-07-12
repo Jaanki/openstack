@@ -1,4 +1,6 @@
 rm -rf ~/multiple
+rm -rf debug_info
+
 Deployed=0
 Deploy_Failed=0
 Validation_Failed=0
@@ -86,7 +88,6 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
       exit
     fi
   fi
-  #./overcloud-capture.yml >> ~/multiple/$INIT/data_dump.log
   INIT=$((INIT + 1))
   sleep 60
 done

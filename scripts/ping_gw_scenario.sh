@@ -10,11 +10,12 @@ done
 chmod +x ping_gw.sh
 
 source ~/stackrc
-for i in $(openstack server list | awk 'NR>=4 {print $4 $12}' | grep controller)
+for i in $(nova list | awk 'NR>=4 {print $4 $12}' | grep controller)
 do
   node=$(echo $i | awk -F 'ctlplane=' '{print $1}')
   ip=$(echo $i | awk -F 'ctlplane=' '{print $2}')
-  echo "working on $node"
+  echo "working on" $node
+  ssh -oStrictHostKeyChecking=no heat-admin@$ip "rm ping_gw.sh"
   scp -oStrictHostKeyChecking=no ping_gw.sh heat-admin@$ip:/home/heat-admin
   ssh -oStrictHostKeyChecking=no heat-admin@$ip "./ping_gw.sh && echo 'ping successfull' || exit 1"
 done

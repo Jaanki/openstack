@@ -1,9 +1,14 @@
-neutron net-create vlan1 --provider:network_type vlan --provider:physical_network datacentre --provider:segmentation_id 1
-neutron subnet-create vlan1 --name vlan1-subnet 90.0.0.1/24
-echo "vlan1 network created"
+INIT=0
+COUNT=$1
+source ~/overcloudrc
 
-#neutron net-create vlan2 --provider:network_type vlan --provider:physical_network datacentre --provider:segmentation_id 2
-#neutron subnet-create vlan2 --name vlan2-subnet 80.0.0.1/24
-
-#neutron net-create vlan3 --provider:network_type vlan --provider:physical_network datacentre --provider:segmentation_id 3
-#neutron subnet-create vlan3 --name vlan3-subnet 70.0.0.1/24
+if [ $COUNT = 0 ]; then
+  echo "no vlan network created"
+fi
+while [ $INIT -lt $COUNT ]; do
+  IP=$(($INIT+30))
+  openstack network create vlan$INIT
+  neutron subnet-create --name vlan$INIT-subnet vlan$INIT $IP.0.0.0/24 --provider:physical_network datacentre --provider:segmentation_id $IP
+  echo "vxlan"$INIT "network created"
+  INIT=$((INIT + 1))
+done

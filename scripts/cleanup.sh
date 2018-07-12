@@ -1,6 +1,14 @@
-# clean up resources
-
 source ~/overcloudrc
+
+# Delete VMs
+openstack server delete $(openstack server list -c ID --format=value)
+
+# clean up resources
+openstack image delete $(openstack image list -c ID -c Name --format value | grep cirros | awk '{print $1}')
+openstack flavor delete $(openstack flavor list -c Name --format value | grep m1.small)
+openstack security group delete $(openstack security group list -c ID --format value -c Name | grep SSH | awk '{print $1}')
+openstack keypair delete RDO_KEY
+
 # Delete routers
 for ROUTER in $(openstack router list -c Name --format=value)
 do
@@ -17,7 +25,9 @@ do
 done
 
 # delete networks
-openstack network delete $(openstack network list -c Name --format=value)
+openstack network delete $(openstack network list -c ID --format=value)
 if [ $? != 0 ]; then
   echo "network deletion failed"
 fi
+
+##TODO: Dlete FIPs
