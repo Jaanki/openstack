@@ -53,7 +53,7 @@ function validate_snat() {
   && ./create_vm.sh $1 \
   && ./ping_gw_scenario.sh $1 \
   && ./check_ovs_flows.sh \
-  ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
+  ||  (Validation_Failed=$((Validation_Failed+1)) && exit 1)
 }
 
 if [[ ! -e cirros-0.3.5-x86_64-disk.img ]]; then
@@ -85,6 +85,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
       echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
       ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
       ./collect_debug_info.sh
+      python send_mail.py
       exit
     fi
   fi

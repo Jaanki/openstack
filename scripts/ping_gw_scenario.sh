@@ -3,7 +3,7 @@ source ~/overcloudrc
 INIT=0
 COUNT=$1
 while [ $INIT -lt $COUNT ]; do
-  echo "sudo ip netns exec qdhcp-$(openstack network list | grep vxlan$INIT | awk '{print $2}') sshpass -p 'cubswin:)' ssh -oStrictHostKeyChecking=no cirros@$(openstack server list | grep vm$INIT | grep -o '=[^ ]*' | tr -d '=') 'ip a; ping -c4 $(openstack router list --long | grep router$INIT | grep -o '10.0[^"]*')'" >> ping_gw.sh
+  echo "sudo ip netns exec qdhcp-$(openstack network list | grep vxlan$INIT | awk '{print $2}') sshpass -p 'cubswin:)' ssh -oStrictHostKeyChecking=no cirros@$(openstack server list | grep vm$INIT | grep -o '=[^ ]*' | tr -d '=') 'ip a; ping -c4 10.0.0.1; ping -c4 8.8.8.8'" >> ping_gw.sh
   INIT=$((INIT + 1))
 done
 

@@ -1,22 +1,38 @@
 mkdir debug_info
-mkdir ~/debug_info/odl_dumps debug_info/ovs_flows ~/debug_info/karaf_logs ~/debug_info/ovs_logs ~/debug_info/sosreport
+mkdir ~/debug_info/odl_dumps debug_info/ovs_flows
+
+function get_logs_for_container() {
+ip=$1
+node=$2
+for service in "${@:3}"
+do
+  mkdir -p ~/debug_info/$service/$node
+  scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/var/log/containers/$service/* ~/debug_info/$service/$node/.
+done
+}
+
+function get_logs_for_service() {
+ip=$1
+node=$2
+for service in "${@:3}"
+do
+  mkdir -p ~/debug_info/$service/$node
+  scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/home/heat-admin/$service/* ~/debug_info/$service/$node/.
+done
+}
 
 # get ovs flows and logs and karaf logs from all nodes
 . ~stack/stackrc
-for i in $(openstack server list | awk 'NR>=4 {print $4 $12}')
+for i in $(nova list | awk 'NR>=4 {print $4 $12}')
 do
   node=$(echo $i | awk -F 'ctlplane=' '{print $1}')
   ip=$(echo $i | awk -F 'ctlplane=' '{print $2}')
   echo "working on $node"
-  mkdir ~/debug_info/ovs_logs/$node
-  mkdir ~/debug_info/sosreport/$node
   ssh -oStrictHostKeyChecking=no heat-admin@$ip "sudo ovs-ofctl dump-flows br-int -OOpenFlow13 | egrep -v 'table=(0|220)' | awk '{print \$3}' | uniq | awk -F= '{print \$2}' | awk -F, '{print \$1}' | wc -l; sudo ovs-ofctl dump-flows br-int -OOpenFlow13" >> ~/debug_info/ovs_flows/$node.log
   ssh -oStrictHostKeyChecking=no heat-admin@$ip "rm -rf sosreport; sudo cp -r /var/log/openvswitch .; sudo chown -R heat-admin: openvswitch; mkdir sosreport; sudo sosreport -o openvswitch -o opendaylight --batch --build --all-logs --tmp-dir=sosreport; sudo chown -R heat-admin: sosreport"
-  scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/home/heat-admin/openvswitch/* ~/debug_info/ovs_logs/$node/.
-  scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/home/heat-admin/sosreport/* ~/debug_info/sosreport/$node/.
+  get_logs_for_service $ip $node sosreport openvswitch
   if [[ $node = *"controller"* ]]; then
-    mkdir -p ~/debug_info/karaf_logs/$node
-    scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/var/log/containers/opendaylight/* ~/debug_info/karaf_logs/$node/.
+    get_logs_for_container $ip $node opendaylight neutron
   fi
 done
 
