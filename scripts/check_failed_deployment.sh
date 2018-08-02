@@ -29,5 +29,4 @@ elif ! openstack stack list | grep -Eq '(CREATE|UPDATE)_COMPLETE'; then
     echo "######################################################" >> $1/failed_deployments.log
     # We need to exit with 1 because of the above || true
     done
-    exit 1
 fi

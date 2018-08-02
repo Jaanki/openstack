@@ -1,5 +1,6 @@
 rm -rf ~/multiple
 rm -rf debug_info
+./cleanup.sh
 
 Deployed=0
 Deploy_Failed=0
@@ -40,7 +41,7 @@ function validate_fip() {
   && ./create_router.sh 4 \
   && ./create_vm.sh 4 fip \
   && ./check_ovs_flows.sh \
-  ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
+  ||  (Validation_Failed=$((Validation_Failed+1)) && exit 1)
 }
 
 function validate_snat() {
@@ -81,10 +82,18 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     validate_snat 4 >> ~/multiple/$INIT/validate_overcloud.log
     if [ $? == 0 ]; then
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
+      source ~/stackrc
+      openstack server list >> ~/multiple/$INIT/undercloud.log
+      source ~/overcloudrc
+      openstack server list >> ~/multiple/$INIT/overcloud.log
+      openstack network list --long >> ~/multiple/$INIT/overcloud.log
+      openstack port list --long >> ~/multiple/$INIT/overcloud.log
+      openstack router list --long >> ~/multiple/$INIT/overcloud.log
     else
       echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
       ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
       ./collect_debug_info.sh
+      mv ~/debug_info ~/multiple/$INIT/
       python send_mail.py
       exit
     fi

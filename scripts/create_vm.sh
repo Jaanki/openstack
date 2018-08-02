@@ -25,7 +25,7 @@ while [ $INIT -lt $COUNT ]; do
       openstack server create --flavor m1.small --image cirros --nic net-id=vxlan$INIT --security-group SSH --key-name RDO_KEY --availability-zone $zone:$host vm$INIT
       sleep 50
       nova console-log vm$INIT
-      if [[ -z "$2" ]]; then
+      if [[ $2 != "fip" ]]; then
         echo "NO FIP attached to VM"
       else
         FIP=$(neutron floatingip-create public | grep floating_ip_address |awk '{print $4}')

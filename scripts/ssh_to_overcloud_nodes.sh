@@ -1,5 +1,5 @@
 # This is quickstart and infrared proof
-
+rm ~/nodesrc
 source ~/stackrc
 touch ~/nodesrc
 for i in $(nova list | awk 'NR>=4 {print $4 $12}')
