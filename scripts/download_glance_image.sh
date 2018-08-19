@@ -4,5 +4,6 @@ for image in $(openstack image list -c Name --format=value)
 do
   id=$(openstack image list --name $image -c ID --format value)
   openstack image save $id --file ${images[$image]}
+  echo "saving" $image "as" ${images[$image]}
 done
 

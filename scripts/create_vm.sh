@@ -28,9 +28,12 @@ while [ $INIT -lt $COUNT ]; do
       if [[ $2 != "fip" ]]; then
         echo "NO FIP attached to VM"
       else
-        FIP=$(neutron floatingip-create public | grep floating_ip_address |awk '{print $4}')
+        FIP_ID=$(neutron floatingip-create public | awk '{if(NR==10) print $4}')
         sleep 30
-        openstack server add floating ip vm$INIT $FIP
+        VM_IP=$(openstack server list | grep vm$INIT | grep -o '=[^ ]*' | tr -d '=')
+        VM_PORT=$(neutron port-list | grep $VM_IP | awk '{print $2}')
+        neutron floatingip-associate $FIP_ID $VM_PORT
+        ping -c4 $FIP
       fi
       tmp=$((tmp + 1))
       INIT=$((INIT + 1))
