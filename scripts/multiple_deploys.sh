@@ -1,61 +1,13 @@
 rm -rf ~/multiple
 rm -rf debug_info
 ./cleanup.sh
+source ./functions.sh
 
 Deployed=0
 Deploy_Failed=0
 Validation_Failed=0
 DEPLOY_FOR=$1
 INIT=0
-
-function delete() {
-  echo "Deleting overcloud"
-  source ~/stackrc
-  openstack stack delete overcloud --yes --wait
-}
-
-
-function check_failed_deployment() {
-  ./check_failed_deployment.sh $1
-}
-
-function deploy() {
-  source ~/stackrc
-  echo "deploying overcloud"
-  ./overcloud_deploy.sh
-  if [ $? == 0 ]; then
-    Deployed=$((Deployed + 1))
-  else
-    Deploy_Failed=$((Deploy_Failed + 1))
-    python send_mail_deploy.py
-    exit 1
-  fi
-}
-
-function validate_fip() {
-  source ~/overcloudrc
-  ./create_resources.sh \
-  && ./create_vlan_network.sh 0 \
-  && ./create_vxlan_network.sh 4 \
-  && ./create_public_network.sh \
-  && ./create_router.sh 4 \
-  && ./create_vm.sh 4 fip \
-  && ./check_ovs_flows.sh \
-  ||  (Validation_Failed=$((Validation_Failed+1)) && exit 1)
-}
-
-function validate_snat() {
-  source ~/overcloudrc
-  ./create_resources.sh \
-  && ./create_vlan_network.sh 0 \
-  && ./create_vxlan_network.sh $1 \
-  && ./create_public_network.sh \
-  && ./create_router.sh $1 \
-  && ./create_vm.sh $1 \
-  && ./ping_gw_scenario.sh $1 \
-  && ./check_ovs_flows.sh \
-  ||  (Validation_Failed=$((Validation_Failed+1)) && exit 1)
-}
 
 if [[ ! -e cirros-0.3.5-x86_64-disk.img ]]; then
   ./get_images.sh # Download cirros image
@@ -64,11 +16,11 @@ fi
 while [ $INIT -lt $DEPLOY_FOR ]; do
   mkdir -p ~/multiple/$INIT
   echo "Starting overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
-  delete >> ~/multiple/$INIT/delete_overcloud.log
+  delete_overcloud >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   sleep 60
   echo "Starting overcloud deploy" $(date) >> ~/multiple/$INIT/deploy_overcloud.log
-  deploy >> ~/multiple/$INIT/deploy_overcloud.log
+  deploy_overcloud >> ~/multiple/$INIT/deploy_overcloud.log
   if [ $? != 0 ]; then
     echo "deployment failed. check logs for reasons"
     check_failed_deployment ~/multiple/$INIT
@@ -78,8 +30,8 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     ./ssh_to_overcloud_nodes.sh >> ~/multiple/$INIT/nodesrc
     sleep 60
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
-    #validate_fip >> ~/multiple/$INIT/validate_overcloud.log
-    validate_snat 4 >> ~/multiple/$INIT/validate_overcloud.log
+    validate_snat 4 >> ~/multiple/$INIT/snat/validate_overcloud.log
+    validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
     if [ $? == 0 ]; then
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
       source ~/stackrc

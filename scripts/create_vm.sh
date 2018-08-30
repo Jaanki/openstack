@@ -23,19 +23,7 @@ while [ $INIT -lt $COUNT ]; do
     while [ $tmp -lt $((COUNT/az)) ]; do
       echo "spawning vm"$INIT "on availability zone" $zone:$host
       openstack server create --flavor m1.small --image cirros --nic net-id=vxlan$INIT --security-group SSH --key-name RDO_KEY --availability-zone $zone:$host vm$INIT
-      sleep 50
-      nova console-log vm$INIT
-      if [[ $2 != "fip" ]]; then
-        echo "NO FIP attached to VM"
-      else
-        FIP_ID=$(neutron floatingip-create public | awk '{if(NR==10) print $4}')
-        FIP=$(neutron floatingip-list | grep $FIP_ID | awk '{print $7}')
-        sleep 30
-        VM_IP=$(openstack server list | grep vm$INIT | grep -o '=[^ ]*' | tr -d '=')
-        VM_PORT=$(neutron port-list | grep $VM_IP | awk '{print $2}')
-        neutron floatingip-associate $FIP_ID $VM_PORT
-        ping -c4 $FIP
-      fi
+      until openstack server show vm$INIT | grep -E 'ACTIVE' -B 5; do sleep 1 ; done
       tmp=$((tmp + 1))
       INIT=$((INIT + 1))
     done

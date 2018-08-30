@@ -1,25 +1,7 @@
 mkdir debug_info
 mkdir ~/debug_info/odl_dumps debug_info/ovs_info
 
-function get_logs_for_container() {
-ip=$1
-node=$2
-for service in "${@:3}"
-do
-  mkdir -p ~/debug_info/$service/$node
-  scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/var/log/containers/$service/* ~/debug_info/$service/$node/.
-done
-}
-
-function get_logs_for_service() {
-ip=$1
-node=$2
-for service in "${@:3}"
-do
-  mkdir -p ~/debug_info/$service/$node
-  scp -oStrictHostKeyChecking=no -r heat-admin@$ip:/home/heat-admin/$service/* ~/debug_info/$service/$node/.
-done
-}
+source ./functions.sh
 
 # get ovs flows and logs and karaf logs from all nodes
 . ~stack/stackrc
