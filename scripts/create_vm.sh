@@ -34,6 +34,7 @@ while [ $INIT -lt $COUNT ]; do
         VM_IP=$(openstack server list | grep vm$INIT | grep -o '=[^ ]*' | tr -d '=')
         VM_PORT=$(neutron port-list | grep $VM_IP | awk '{print $2}')
         neutron floatingip-associate $FIP_ID $VM_PORT
+        echo "FIP is" $FIP
         ping -c4 $FIP
       fi
       tmp=$((tmp + 1))
