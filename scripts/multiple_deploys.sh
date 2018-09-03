@@ -14,7 +14,7 @@ if [[ ! -e cirros-0.3.5-x86_64-disk.img ]]; then
 fi
 
 while [ $INIT -lt $DEPLOY_FOR ]; do
-  mkdir -p ~/multiple/$INIT
+  mkdir -p ~/multiple/$INIT/snat ~/multiple/$INIT/fip
   echo "Starting overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   delete_overcloud >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
@@ -32,6 +32,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     validate_snat 4 >> ~/multiple/$INIT/snat/validate_overcloud.log
     validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
+    mv ~/ping_gw.sh ~/multiple/$INIT/snat
     if [ $? == 0 ]; then
       echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
       source ~/stackrc
