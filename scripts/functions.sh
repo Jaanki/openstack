@@ -67,8 +67,7 @@ function validate_fip() {
   source ~/overcloudrc
   ./associate_fip.sh 4 \
   && ./reassociate_fip.sh 4 \
-  && ./check_ovs_flows.sh \
-  ||  (Validation_Failed=$((Validation_Failed+1)) && exit 1)
+  ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }
 
 function validate_snat() {
@@ -80,6 +79,5 @@ function validate_snat() {
   && ./create_router.sh $1 \
   && ./create_vm.sh $1 \
   && ./ping_gw_scenario.sh $1 \
-  && ./check_ovs_flows.sh \
-  ||  (Validation_Failed=$((Validation_Failed+1)) && exit 1)
+  ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }

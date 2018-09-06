@@ -8,7 +8,7 @@ declare -A FIPS
 
 # Get all FIPs
 while [ $INIT -lt $COUNT ]; do
-  FIPS[$INIT]=$(openstack server list | grep vm$INIT | grep -o "10.[^ ]*")
+  FIPS[$INIT]=$(openstack server list | grep vm$INIT | grep -o "10.0.[^ ]*")
   INIT=$((INIT + 1))
 done
 

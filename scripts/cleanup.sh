@@ -1,6 +1,10 @@
 source ~/overcloudrc
 source ./functions.sh
 
+# Delete FIPs
+dissociate_fip
+openstack floating ip delete $(openstack floating ip list -c ID --format=value)
+
 # Delete VMs
 openstack server delete $(openstack server list -c ID --format=value)
 
@@ -31,6 +35,3 @@ if [ $? != 0 ]; then
   echo "network deletion failed"
 fi
 
-##TODO: Delete FIPs
-dissociate_fip
-openstack floating ip delete $(openstack floating ip list -c ID --format=value)
