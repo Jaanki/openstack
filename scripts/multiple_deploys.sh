@@ -1,5 +1,6 @@
 rm -rf ~/multiple
 rm -rf debug_info
+source ~/overcloudrc
 ./cleanup.sh
 source ./functions.sh
 
@@ -31,25 +32,11 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     sleep 60
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     validate_snat 4 >> ~/multiple/$INIT/snat/validate_overcloud.log
-    validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
     mv ~/ping_gw.sh ~/multiple/$INIT/snat
-    if [ $? == 0 ]; then
-      echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
-      source ~/stackrc
-      openstack server list >> ~/multiple/$INIT/undercloud.log
-      source ~/overcloudrc
-      openstack server list >> ~/multiple/$INIT/overcloud.log
-      openstack network list --long >> ~/multiple/$INIT/overcloud.log
-      openstack port list --long >> ~/multiple/$INIT/overcloud.log
-      openstack router list --long >> ~/multiple/$INIT/overcloud.log
-    else
-      echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
-      ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
-      ./collect_debug_info.sh
-      mv ~/debug_info ~/multiple/$INIT/
-      python send_mail.py
-      exit
-    fi
+    validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
+    echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
+    ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
+    ./collect_debug_info.sh
   fi
   INIT=$((INIT + 1))
   sleep 60

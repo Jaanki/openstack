@@ -8,7 +8,7 @@ function associate_fip() {
   VM_PORT=$(neutron port-list | grep $VM_IP | awk '{print $2}')
   neutron floatingip-associate $FIP_ID $VM_PORT
   echo "Pinging FIP " $FIP
-  ping -c4 $FIP
+  ping -c4 $FIP || exit 1
 }
 
 function check_failed_deployment() {
@@ -64,20 +64,30 @@ done
 }
 
 function validate_fip() {
+  if [ $# -eq 0 ]; then
+    COUNT=4
+  else
+    COUNT=$1
+  fi
   source ~/overcloudrc
-  ./associate_fip.sh 4 \
-  && ./reassociate_fip.sh 4 \
+  ./associate_fip.sh $COUNT \
+  && ./reassociate_fip.sh $COUNT \
   ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }
 
 function validate_snat() {
+  if [ $# -eq 0 ]; then
+    COUNT=4
+  else
+    COUNT=$1
+  fi
   source ~/overcloudrc
   ./create_resources.sh \
   && ./create_vlan_network.sh 0 \
-  && ./create_vxlan_network.sh $1 \
+  && ./create_vxlan_network.sh $COUNT \
   && ./create_public_network.sh \
-  && ./create_router.sh $1 \
-  && ./create_vm.sh $1 \
-  && ./ping_gw_scenario.sh $1 \
+  && ./create_router.sh $COUNT \
+  && ./create_vm.sh $COUNT \
+  && ./ping_gw_scenario.sh $COUNT \
   ||  (Validation_Failed=$((Validation_Failed+1)) && python send_mail.py && exit 1)
 }

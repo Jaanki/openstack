@@ -7,8 +7,8 @@ if [ $COUNT = 0 ]; then
 fi
 while [ $INIT -lt $COUNT ]; do
   IP=$(($INIT+30))
-  openstack network create vlan$INIT
-  neutron subnet-create --name vlan$INIT-subnet vlan$INIT $IP.0.0.0/24 --provider:physical_network datacentre --provider:segmentation_id $IP
+  openstack network create vlan$INIT --provider-physical-network datacentre --provider-segment $IP --provider-network-type vlan
+  openstack subnet create vlan$INIT-subnet --network vlan$INIT --subnet-range $IP.0.0.0/24
   echo "vxlan"$INIT "network created"
   INIT=$((INIT + 1))
 done

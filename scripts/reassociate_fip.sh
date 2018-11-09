@@ -1,3 +1,5 @@
+set -e
+
 source ~/overcloudrc
 source ./functions.sh
 

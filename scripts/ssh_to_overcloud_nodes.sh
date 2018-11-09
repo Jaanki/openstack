@@ -2,7 +2,7 @@
 rm ~/nodesrc
 source ~/stackrc
 touch ~/nodesrc
-for i in $(nova list | awk 'NR>=4 {print $4 $12}')
+for i in $(openstack server list | awk 'NR>=4 {print $4 $8}')
 do
   node=$(echo $i | awk -F 'ctlplane=' '{print $1}')
   ip=$(echo $i | awk -F 'ctlplane=' '{print $2}')
