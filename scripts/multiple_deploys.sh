@@ -1,5 +1,9 @@
+set -e
+set -o pipefail
+
 rm -rf ~/multiple
 rm -rf debug_info
+source ~/overcloudrc
 ./cleanup.sh
 source ./functions.sh
 
@@ -9,12 +13,7 @@ Validation_Failed=0
 DEPLOY_FOR=$1
 INIT=0
 
-if [[ ! -e cirros-0.3.5-x86_64-disk.img ]]; then
-  ./get_images.sh # Download cirros image
-fi
-
 while [ $INIT -lt $DEPLOY_FOR ]; do
-  mkdir -p ~/multiple/$INIT/snat ~/multiple/$INIT/fip
   echo "Starting overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   delete_overcloud >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
@@ -30,26 +29,15 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     ./ssh_to_overcloud_nodes.sh >> ~/multiple/$INIT/nodesrc
     sleep 60
     echo "Starting overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
+    mkdir -p ~/multiple/$INIT/snat
     validate_snat 4 >> ~/multiple/$INIT/snat/validate_overcloud.log
-    validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
     mv ~/ping_gw.sh ~/multiple/$INIT/snat
-    if [ $? == 0 ]; then
-      echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
-      source ~/stackrc
-      openstack server list >> ~/multiple/$INIT/undercloud.log
-      source ~/overcloudrc
-      openstack server list >> ~/multiple/$INIT/overcloud.log
-      openstack network list --long >> ~/multiple/$INIT/overcloud.log
-      openstack port list --long >> ~/multiple/$INIT/overcloud.log
-      openstack router list --long >> ~/multiple/$INIT/overcloud.log
-    else
-      echo "validation failed. see logs at ~/multiple/"$INIT"/validate_overcloud.log"
-      ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
-      ./collect_debug_info.sh
-      mv ~/debug_info ~/multiple/$INIT/
-      python send_mail.py
-      exit
-    fi
+    mkdir -p ~/multiple/$INIT/fip
+    validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
+    echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
+    ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
+    ./collect_debug_info.sh
+    mv debug_info ~/multiple/$INIT/
   fi
   INIT=$((INIT + 1))
   sleep 60

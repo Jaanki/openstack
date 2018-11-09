@@ -1,4 +1,8 @@
 source ~/overcloudrc
+
+if [ ! -f cirros-0.3.5-x86_64-disk.img ]; then
+  ./get_images.sh
+fi
 #Create cirros image
 openstack image create --disk-format qcow2 --public --file cirros-0.3.5-x86_64-disk.img --container-format=bare cirros
 echo "cirros image created"
