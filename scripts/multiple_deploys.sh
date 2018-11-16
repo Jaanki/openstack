@@ -14,6 +14,7 @@ DEPLOY_FOR=$1
 INIT=0
 
 while [ $INIT -lt $DEPLOY_FOR ]; do
+  mkdir -p ~/multiple/$INIT
   echo "Starting overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
   delete_overcloud >> ~/multiple/$INIT/delete_overcloud.log
   echo "Completed overcloud delete" $(date) >> ~/multiple/$INIT/delete_overcloud.log
@@ -33,7 +34,7 @@ while [ $INIT -lt $DEPLOY_FOR ]; do
     validate_snat 4 >> ~/multiple/$INIT/snat/validate_overcloud.log
     mv ~/ping_gw.sh ~/multiple/$INIT/snat
     mkdir -p ~/multiple/$INIT/fip
-    validate_fip >> ~/multiple/$INIT/fip/validate_overcloud.log
+    validate_fip 4 >> ~/multiple/$INIT/fip/validate_overcloud.log
     echo "Completed overcloud validate" $(date) >> ~/multiple/$INIT/validate_overcloud.log
     ./check_ovs_flows.sh >> ~/multiple/$INIT/ovs_flows.log
     ./collect_debug_info.sh
